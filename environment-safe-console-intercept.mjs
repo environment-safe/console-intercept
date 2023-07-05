@@ -13,6 +13,8 @@ export const intercept = (handler)=>{
         return interceptor(handler);
     }else{
         const logger = console.log;
+        const err = console.error;
+        const warn = console.warn;
         console.log = (...args)=>{
             const textArg = args[0];
             const outboundText = handler(textArg+'\n');
@@ -21,8 +23,26 @@ export const intercept = (handler)=>{
                 logger.apply(logger, args);
             }
         }
+        console.error = (...args)=>{
+            const textArg = args[0].message?args[0].message:args[0];
+            const outboundText = handler(textArg+'\n');
+            if(outboundText){
+                args[0] = outboundText;
+                err.apply(logger, args);
+            }
+        }
+        console.warn = (...args)=>{
+            const textArg = args[0].message?args[0].message:args[0];
+            const outboundText = handler(textArg+'\n');
+            if(outboundText){
+                args[0] = outboundText;
+                err.apply(logger, args);
+            }
+        }
         return ()=>{
             console.log = logger;
+            console.warn = warn;
+            console.error = err;
         }
     }
 }

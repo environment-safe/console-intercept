@@ -1,6 +1,6 @@
-import { chai } from 'environment-safe-chai'; 
+const { chai } = require('environment-safe-chai'); 
 const should = chai.should();
-import { intercept } from '../environment-safe-console-intercept.js'
+const { intercept } = require('../environment-safe-console-intercept.cjs');
 
 describe('environment-safe-console-intercept', ()=>{
    describe('performs a simple test suite', ()=>{

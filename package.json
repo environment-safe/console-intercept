@@ -1,7 +1,21 @@
 {
     "name": "environment-safe-console-intercept",
-    "version": "0.0.1",
+    "version": "0.1.0",
     "main": "environment-safe-console-intercept.js",
+    "exports": {
+        ".": {
+          "import": "./environment-safe-console-intercept.mjs",
+          "require": "./environment-safe-console-intercept.cjs"
+        },
+        "./environment-safe-chai.js": {
+          "import": "./environment-safe-console-intercept.mjs",
+          "require": "./environment-safe-console-intercept.cjs"
+        },
+        "./index.js": {
+          "import": "./environment-safe-console-intercept.mjs",
+          "require": "./environment-safe-console-intercept.cjs"
+        }
+    },
     "devDependencies": {
         "chai": "^4.3.7",
         "environment-safe-chai": "^0.0.1",
@@ -10,7 +24,9 @@
     "type": "module",
     "scripts": {
         "lint": "./node_modules/.bin/eslint *.js src/*.js test/*.js",
-        "test": "./node_modules/.bin/mocha",
+        "import-test":"./node_modules/.bin/mocha test/test.mjs",
+        "require-test":"./node_modules/.bin/mocha test/test.mjs",
+        "test":"npm run require-test; npm run import-test",
         "browser-test":"open http://localhost:8000/test/test.html; npx http-server -p 8000",
         "container-test": "docker build . -t environment-safe-console-intercept -f ./containers/test.dockerfile; docker logs --follow \"$(docker run -d environment-safe-console-intercept)\""
     },

@@ -1,12 +1,14 @@
-const { isBrowser, isJsDom } = require('browser-or-node');
-const mod = require('module');
+import { isBrowser, isJsDom } from 'browser-or-node';
+import * as mod from 'module';
 let interceptor = null;
 // todo: support more than a single text string
 // for now: couple to intercept-stdout's model
 export const intercept = (handler)=>{
     if(!(isBrowser || isJsDom)){
         if(!interceptor){
-            interceptor = require("intercept-stdout");
+            const require = mod.createRequire(import.meta.url);
+            const interceptStdOut = require('intercept-stdout');
+            interceptor = interceptStdOut;
         }
         return interceptor(handler);
     }else{
@@ -20,7 +22,7 @@ export const intercept = (handler)=>{
                 args[0] = outboundText;
                 logger.apply(logger, args);
             }
-        }
+        };
         console.error = (...args)=>{
             const textArg = args[0].message?args[0].message:args[0];
             const outboundText = handler(textArg+'\n');
@@ -28,7 +30,7 @@ export const intercept = (handler)=>{
                 args[0] = outboundText;
                 err.apply(logger, args);
             }
-        }
+        };
         console.warn = (...args)=>{
             const textArg = args[0].message?args[0].message:args[0];
             const outboundText = handler(textArg+'\n');
@@ -36,11 +38,11 @@ export const intercept = (handler)=>{
                 args[0] = outboundText;
                 err.apply(logger, args);
             }
-        }
+        };
         return ()=>{
             console.log = logger;
             console.warn = warn;
             console.error = err;
-        }
+        };
     }
-}
+};

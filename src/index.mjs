@@ -1,20 +1,17 @@
-import { isBrowser, isJsDom } from 'browser-or-node';
-import * as mod from 'module';
-let interceptor = null;
-// todo: support more than a single text string
-// for now: couple to intercept-stdout's model
-export const intercept = (handler)=>{
-    if(!(isBrowser || isJsDom)){
-        if(!interceptor){
-            const require = mod.createRequire(import.meta.url);
-            const interceptStdOut = require('intercept-stdout');
-            interceptor = interceptStdOut;
-        }
-        return interceptor(handler);
-    }else{
+
+export const intercept = (handler, errHandler)=>{
+    let reset = null;
+    try{
+        
         const logger = console.log;
         const err = console.error;
         const warn = console.warn;
+        let trace = null;
+        if(console.trace) trace = console.trace;
+        let debug = null;
+        if(console.debug) debug = console.debug;
+        let info = null;
+        if(console.info) info = console.info;
         console.log = (...args)=>{
             const textArg = args[0];
             const outboundText = handler(textArg+'\n');
@@ -39,10 +36,48 @@ export const intercept = (handler)=>{
                 err.apply(logger, args);
             }
         };
-        return ()=>{
+        if(trace){
+            console.trace = (...args)=>{
+                const textArg = args[0];
+                const outboundText = handler(textArg+'\n');
+                if(outboundText){
+                    args[0] = outboundText;
+                    trace.apply(logger, args);
+                }
+            };
+        }
+        if(debug){
+            console.debug = (...args)=>{
+                const textArg = args[0];
+                const outboundText = handler(textArg+'\n');
+                if(outboundText){
+                    args[0] = outboundText;
+                    debug.apply(logger, args);
+                }
+            };
+        }
+        if(info){
+            console.info = (...args)=>{
+                const textArg = args[0];
+                const outboundText = handler(textArg+'\n');
+                if(outboundText){
+                    args[0] = outboundText;
+                    info.apply(logger, args);
+                }
+            };
+        }
+        reset = ()=>{
             console.log = logger;
             console.warn = warn;
             console.error = err;
+            if(trace) console.trace = trace;
+            if(debug) console.debug = debug;
+            if(info) console.info = info;
         };
+        return reset;
+    }catch(ex){
+        process.exit();
+        if(reset) reset();
+        console.log('Error in console interception setup', ex);
     }
 };

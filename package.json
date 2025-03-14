@@ -1,6 +1,6 @@
 {
     "name": "@environment-safe/console-intercept",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "type": "module",
     "main": "dist/index.mjs",
     "module": "src/index.mjs",
@@ -90,7 +90,5 @@
         "prepare": "husky install"
     },
     "dependencies": {
-        "browser-or-node": "^2.1.1",
-        "intercept-stdout": "^0.1.2"
     }
 }
